@@ -18,6 +18,11 @@ CREATE TABLE comments(cid INTEGER, pid INTEGER, uid INTEGER, moderated INTEGER,
                       subject VARCHAR, comment VARCHAR, created INTEGER, url VARCHAR);
 ```
 
+or for the merged dataset:
+```sql
+CREATE TABLE comments(cid INTEGER, pid INTEGER, uid INTEGER, comment VARCHAR, created INTEGER, url VARCHAR, fid REAL, timestamp REAL, hate BOOLEAN);
+```
+
 Comments can be imported from a cleansed CSV file:
 
 ```sql
