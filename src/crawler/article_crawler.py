@@ -16,6 +16,7 @@ class ArticelCrawler(scrapy.Spider):
     failed_urls = []
 
     def start_requests(self):
+        print('crawling....')
         for url in self.urls:
             if url.get_url() and type(url.get_url()) is str:
                 yield scrapy.Request(url=url.get_url(), callback=self.parse, method='GET',

@@ -1,1 +1,2 @@
 psycopg2
+scrapy (install it with miniconda, otherwise you get conflicts with python versions 3+)
