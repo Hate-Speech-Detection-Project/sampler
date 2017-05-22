@@ -6,16 +6,16 @@ class Article:
     XPATH_ARTICLE_HEAD = '/html/head'
 
     def __init__(self):
-        self.corresponding_cid = ""
+        self.id = ""
         self.text_body = ""
         self.heading = ""
         self.ressort = ""
 
-    def set_corresponding_cid(self,cid):
-        self.corresponding_cid = cid
+    def set_id(self,id):
+        self.id = id
 
-    def get_corresponding_cid(self):
-        return self.corresponding_cid
+    def get_id(self):
+        return self.id
 
     def set_heading(self, heading):
         self.heading = heading

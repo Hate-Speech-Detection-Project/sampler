@@ -4,7 +4,7 @@ from crawler.article import Article
 from w3lib.html import remove_tags, remove_tags_with_content
 
 HTTP_RESPONSE_OK = 200
-CID_IDENTIFIER = 'cid'
+ID_IDENTIFIER = 'id'
 
 
 class ArticelCrawler(scrapy.Spider):
@@ -20,7 +20,7 @@ class ArticelCrawler(scrapy.Spider):
         for url in self.urls:
             if url.get_url() and type(url.get_url()) is str:
                 yield scrapy.Request(url=url.get_url(), callback=self.parse, method='GET',
-                                     meta={CID_IDENTIFIER: url.get_cid()}, )
+                                     meta={ID_IDENTIFIER: url.get_id()}, )
 
     def __init__(self):
         super().__init__(self)
@@ -29,7 +29,7 @@ class ArticelCrawler(scrapy.Spider):
 
     def parse(self, response):
         if response.status != HTTP_RESPONSE_OK:
-            self.failed_urls.append([response.meta[CID_IDENTIFIER], response.status, response.url])
+            self.failed_urls.append([response.meta[ID_IDENTIFIER], response.status, response.url])
         else:
             self.articles.append(self._create_article_from_response(response))
 
@@ -47,7 +47,7 @@ class ArticelCrawler(scrapy.Spider):
     def _create_article_from_response(self, response):
         article = Article()
 
-        article.set_corresponding_cid(response.meta[CID_IDENTIFIER])
+        article.set_id(response.meta[ID_IDENTIFIER])
 
         heading = response.xpath(Article.XPATH_ARTICLE_HEADING).extract_first()
         if heading is not None:
@@ -62,7 +62,6 @@ class ArticelCrawler(scrapy.Spider):
         article_body = response.xpath(Article.XPATH_ARTICLE_BODY).extract_first()
         if article_body is not None:
             article.set_body(self._filter_text_from_markup(article_body))
-
         return article
 
     # removes markup-tags from the given text

@@ -1,20 +1,20 @@
 
 class URL:
 
-    def __init__(self, cid, url):
+    def __init__(self, id, url):
         self.url = url
-        self.cid = cid
+        self.id = id
 
 
     def get_url(self):
         return self.url
 
-    def get_cid(self):
-        return self.cid
+    def get_id(self):
+        return self.id
 
     def set_url(self,url):
         self.url = url
 
-    def set_cid(self,cid):
-        self.cid = cid
+    def set_id(self,id):
+        self.id = id
 
