@@ -12,8 +12,9 @@ class DBInterface:
 
     def insert_article(self, article):
         cur = self.conn.cursor()
-        query = """ INSERT INTO articles (id,heading,body,ressort) VALUES (%s, %s, %s,%s) """
-        data = (article.get_id(), article.get_heading(), article.get_body(), article.get_ressort())
+        query = """ INSERT INTO articles (id,heading,body,ressort,url) VALUES (%s, %s, %s, %s, %s) """
+        data = (article.get_id(), article.get_heading(), article.get_body(), article.get_ressort(), article.get_url())
+        print(article.get_url())
         cur.execute(query, data)
         self.commit_queries()
 
@@ -37,7 +38,8 @@ class DBInterface:
                         id INTEGER PRIMARY KEY,
                         heading TEXT,
                         body TEXT NOT NULL,
-                        ressort TEXT NOT NULL
+                        ressort TEXT NOT NULL,
+                        url TEXT NOT NULL
                     )
             """
         )

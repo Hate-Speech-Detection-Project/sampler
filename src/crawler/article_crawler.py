@@ -7,6 +7,7 @@ from scrapy.selector import Selector
 
 HTTP_RESPONSE_OK = 200
 ID_IDENTIFIER = 'id'
+URL_IDENTIFIER = 'url'
 
 
 class ArticelCrawler(scrapy.Spider):
@@ -22,8 +23,9 @@ class ArticelCrawler(scrapy.Spider):
         print('crawling....')
         for url in self.urls:
             if url.get_url() and type(url.get_url()) is str:
-                yield scrapy.Request(url=url.get_url(), callback=self.parse, method='GET',
-                                     meta={ID_IDENTIFIER: url.get_id()}, )
+                yield scrapy.Request(url=url.get_url(), headers={'referer': 'https://www.facebook.com/zeitonline/'}, callback=self.parse, method='GET',
+                                     meta={ID_IDENTIFIER: url.get_id(), URL_IDENTIFIER: url.get_url()},
+                                     )
 
     def __init__(self):
         super().__init__(self)
@@ -52,6 +54,7 @@ class ArticelCrawler(scrapy.Spider):
         article = Article()
 
         article.set_id(response.meta[ID_IDENTIFIER])
+        article.set_url(response.meta[URL_IDENTIFIER])
 
         heading = response.xpath(Article.XPATH_ARTICLE_HEADING).extract_first()
         if heading is not None:
@@ -68,6 +71,7 @@ class ArticelCrawler(scrapy.Spider):
         body = ""
         for p in paragraphs:
             body += p
+
         body.rstrip()
         article.set_body(body)
 

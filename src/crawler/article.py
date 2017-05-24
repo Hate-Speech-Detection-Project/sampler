@@ -2,7 +2,8 @@
 class Article:
     XPATH_ARTICLE_HEADING = '//*[@id="js-article"]/header/div[1]/h1/span[3]'
     XPATH_RESSORT = '//*[@id="navigation"]/nav[3]/ul/li[1]/a/span'
-    XPATH_ARTICLE_BODY = '//*[@id="js-article"]/div[1]/section/p/text()'
+    #XPATH_ARTICLE_BODY = '//*[@id="js-article"]/div[1]/section/p/text()'
+    XPATH_ARTICLE_BODY = '//*[@id="js-article"]/div[1]/*//p//text()'
     XPATH_ARTICLE_HEAD = '/html/head'
 
     def __init__(self):
@@ -10,6 +11,13 @@ class Article:
         self.text_body = ""
         self.heading = ""
         self.ressort = ""
+        self.url = ""
+
+    def set_url(self, url):
+        self.url = url
+
+    def get_url(self):
+        return self.url
 
     def set_id(self,id):
         self.id = id
