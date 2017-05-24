@@ -1,5 +1,6 @@
 import scrapy
 import re
+from db_interface import DBInterface
 from crawler.article import Article
 from w3lib.html import remove_tags, remove_tags_with_content
 
@@ -14,6 +15,7 @@ class ArticelCrawler(scrapy.Spider):
     urls = []
     articles = []
     failed_urls = []
+    db_interface = DBInterface()
 
     def start_requests(self):
         print('crawling....')
@@ -31,7 +33,9 @@ class ArticelCrawler(scrapy.Spider):
         if response.status != HTTP_RESPONSE_OK:
             self.failed_urls.append([response.meta[ID_IDENTIFIER], response.status, response.url])
         else:
-            self.articles.append(self._create_article_from_response(response))
+            article = (self._create_article_from_response(response))
+            self.db_interface.insert_article(article)
+            self.db_interface.commit_queries()
 
     @staticmethod
     def get_failed_urls():

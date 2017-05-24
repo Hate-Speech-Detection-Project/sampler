@@ -13,6 +13,13 @@ else:
     print('Path is not correct or it is not a file')
     sys.exit()
 
+# insert crawled articles into the db
+dbInterface = DBInterface()
+if not dbInterface.article_table_already_exists():
+    print('Created Table articles')
+    dbInterface.create_articles_table()
+
+
 ops = CSVOperations(csvFile)
 ArticelCrawler.urls.extend(ops.get_urls())
 
@@ -26,13 +33,4 @@ process.start()  # the script will block here until the crawling is finished
 print('failed URLs are:')
 print(ArticelCrawler.get_failed_urls())
 
-# insert crawled articles into the db
-dbInterface = DBInterface()
-if not dbInterface.article_table_already_exists():
-    print('Created Table articles')
-    dbInterface.create_articles_table()
 
-for article in ArticelCrawler.get_articles():
-    dbInterface.insert_article()
-
-dbInterface.commit_queries()
