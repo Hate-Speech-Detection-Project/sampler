@@ -15,6 +15,7 @@ class DBInterface:
         query = """ INSERT INTO articles (id,heading,body,ressort) VALUES (%s, %s, %s,%s) """
         data = (article.get_id(), article.get_heading(), article.get_body(), article.get_ressort())
         cur.execute(query, data)
+        self.commit_queries()
 
     def article_table_already_exists(self):
         cur = self.conn.cursor()

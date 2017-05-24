@@ -19,7 +19,6 @@ if not dbInterface.article_table_already_exists():
     print('Created Table articles')
     dbInterface.create_articles_table()
 
-
 ops = CSVOperations(csvFile)
 ArticelCrawler.urls.extend(ops.get_urls())
 
@@ -32,5 +31,3 @@ process.start()  # the script will block here until the crawling is finished
 
 print('failed URLs are:')
 print(ArticelCrawler.get_failed_urls())
-
-

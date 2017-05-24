@@ -3,6 +3,7 @@ import re
 from db_interface import DBInterface
 from crawler.article import Article
 from w3lib.html import remove_tags, remove_tags_with_content
+from scrapy.selector import Selector
 
 HTTP_RESPONSE_OK = 200
 ID_IDENTIFIER = 'id'
@@ -35,7 +36,6 @@ class ArticelCrawler(scrapy.Spider):
         else:
             article = (self._create_article_from_response(response))
             self.db_interface.insert_article(article)
-            self.db_interface.commit_queries()
 
     @staticmethod
     def get_failed_urls():
@@ -63,9 +63,14 @@ class ArticelCrawler(scrapy.Spider):
         else:
             self._parse_html_head_and_set_ressort(response, article)
 
-        article_body = response.xpath(Article.XPATH_ARTICLE_BODY).extract_first()
-        if article_body is not None:
-            article.set_body(self._filter_text_from_markup(article_body))
+        sel = Selector(response)
+        paragraphs = sel.xpath(Article.XPATH_ARTICLE_BODY).extract()
+        body = ""
+        for p in paragraphs:
+            body += p
+        body.rstrip()
+        article.set_body(body)
+
         return article
 
     # removes markup-tags from the given text
