@@ -67,12 +67,16 @@ class ArticelCrawler(scrapy.Spider):
             self._parse_html_head_and_set_ressort(response, article)
 
         sel = Selector(response)
-        paragraphs = sel.xpath(Article.XPATH_ARTICLE_BODY).extract()
+
+        paragraphs = sel.css('div[class="article-body article-body--article"]').xpath('*//p//text()').extract()
+
         body = ""
         for p in paragraphs:
             body += p
 
         body.rstrip()
+        body = body.replace('\n', '').replace('\r', '')
+
         article.set_body(body)
 
         return article

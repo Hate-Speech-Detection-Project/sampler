@@ -2,9 +2,11 @@ from fileoperations import CSVOperations
 from crawler.article_crawler import ArticelCrawler
 from scrapy.crawler import CrawlerProcess
 from db_interface import DBInterface
+from crawler.url import URL
 
 import sys
 from pathlib import Path
+
 
 if sys.argv[1] and Path(sys.argv[1]).is_file():
     path = sys.argv[1]
