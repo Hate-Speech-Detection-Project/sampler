@@ -10,6 +10,7 @@ class DBInterface:
             print("Cannot connect to database.")
             sys.exit(0)
 
+
     def insert_article(self, article):
         cur = self.conn.cursor()
         query = """ INSERT INTO articles (id,heading,body,ressort,url) VALUES (%s, %s, %s, %s, %s) """
@@ -30,6 +31,28 @@ class DBInterface:
         )
         return bool(cur.fetchone()[0])
 
+    def comments_table_already_exists(self):
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+                 SELECT EXISTS(SELECT 1 FROM information_schema.tables
+                    WHERE table_catalog = 'hatespeech' AND table_schema = 'public'
+                    AND table_name = 'comments');
+            """
+        )
+        return bool(cur.fetchone()[0])
+
+    def get_urls(self):
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+                 SELECT DISTINCT url FROM comments;
+            """
+        )
+        return cur.fetchall()
+
     def create_articles_table(self):
         cur = self.conn.cursor()
         cur.execute(
@@ -41,6 +64,15 @@ class DBInterface:
                         ressort TEXT NOT NULL,
                         url TEXT NOT NULL
                     )
+            """
+        )
+        self.conn.commit()
+
+    def delete_articles_table(self):
+        cur = self.conn.cursor()
+        cur.execute(
+            """
+                  DROP TABLE articles
             """
         )
         self.conn.commit()

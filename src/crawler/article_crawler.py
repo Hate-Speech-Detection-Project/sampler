@@ -22,23 +22,25 @@ class ArticelCrawler(scrapy.Spider):
 
     def start_requests(self):
         print('crawling....')
+        count = 0
         for url in self.urls:
-            if url.get_url() and type(url.get_url()) is str:
-                yield scrapy.Request(url=url.get_url() + COMPLETE_ARTICLE_URL_SUBDOMAIN, headers={'referer': 'https://www.facebook.com/zeitonline/'}, callback=self.parse, method='GET',
-                                     meta={ID_IDENTIFIER: url.get_id(), URL_IDENTIFIER: url.get_url()},
-                                     )
+            yield scrapy.Request(url=url[0] + COMPLETE_ARTICLE_URL_SUBDOMAIN,
+                                 headers={'referer': 'https://www.facebook.com/zeitonline/'}, callback=self.parse,
+                                 method='GET',
+                                 meta={ID_IDENTIFIER: count, URL_IDENTIFIER: url[0]},
+                                 )
+            count += 1
 
     def __init__(self):
         super().__init__(self)
-
-
 
     def parse(self, response):
         if response.status != HTTP_RESPONSE_OK:
             self.failed_urls.append([response.meta[ID_IDENTIFIER], response.status, response.url])
         else:
             article = (self._create_article_from_response(response))
-            self.db_interface.insert_article(article)
+            if article.get_body() !=  "":
+                self.db_interface.insert_article(article)
 
     @staticmethod
     def get_failed_urls():
@@ -47,8 +49,6 @@ class ArticelCrawler(scrapy.Spider):
     @staticmethod
     def get_articles():
         return ArticelCrawler.articles
-
-
 
     # creates an article based on the crawler-response
     def _create_article_from_response(self, response):
@@ -59,7 +59,7 @@ class ArticelCrawler(scrapy.Spider):
 
         sel = Selector(response)
 
-        heading= ""
+        heading = ""
         text_areas = sel.css(Article.XPATH_ARTICLE_HEADING).xpath('*//div//text()').extract()
         for t in text_areas:
             heading += t
@@ -71,7 +71,6 @@ class ArticelCrawler(scrapy.Spider):
             article.set_ressort(self._filter_text_from_markup(ressort).lower())
         else:
             self._parse_html_head_and_set_ressort(response, article)
-
 
         paragraphs = sel.css('div[itemprop="articleBody"]').xpath('*//p//text()').extract()
 
@@ -88,7 +87,7 @@ class ArticelCrawler(scrapy.Spider):
     def _filter_text_from_markup(self, markup):
         return remove_tags(remove_tags_with_content(markup, ('script',)))
 
-    def _filter_unnecessary_linebreaks(self,text):
+    def _filter_unnecessary_linebreaks(self, text):
         text = text.rstrip()
         return text.replace('\n', '').replace('\r', '')
 
