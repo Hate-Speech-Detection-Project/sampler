@@ -17,7 +17,7 @@ else:
 
 # insert crawled articles into the db
 dbInterface = DBInterface()
-if not dbInterface.article_table_already_exists():
+if not dbInterface.article_table_already_exists() and not dbInterface.comments_table_already_exists():
     print('Created Table articles')
     dbInterface.create_articles_table()
 

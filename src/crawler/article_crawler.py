@@ -8,6 +8,7 @@ from scrapy.selector import Selector
 HTTP_RESPONSE_OK = 200
 ID_IDENTIFIER = 'id'
 URL_IDENTIFIER = 'url'
+COMPLETE_ARTICLE_URL_SUBDOMAIN = '/komplettansicht'
 
 
 class ArticelCrawler(scrapy.Spider):
@@ -23,7 +24,7 @@ class ArticelCrawler(scrapy.Spider):
         print('crawling....')
         for url in self.urls:
             if url.get_url() and type(url.get_url()) is str:
-                yield scrapy.Request(url=url.get_url(), headers={'referer': 'https://www.facebook.com/zeitonline/'}, callback=self.parse, method='GET',
+                yield scrapy.Request(url=url.get_url() + COMPLETE_ARTICLE_URL_SUBDOMAIN, headers={'referer': 'https://www.facebook.com/zeitonline/'}, callback=self.parse, method='GET',
                                      meta={ID_IDENTIFIER: url.get_id(), URL_IDENTIFIER: url.get_url()},
                                      )
 
@@ -56,9 +57,14 @@ class ArticelCrawler(scrapy.Spider):
         article.set_id(response.meta[ID_IDENTIFIER])
         article.set_url(response.meta[URL_IDENTIFIER])
 
-        heading = response.xpath(Article.XPATH_ARTICLE_HEADING).extract_first()
-        if heading is not None:
-            article.set_heading(self._filter_text_from_markup(heading))
+        sel = Selector(response)
+
+        heading= ""
+        text_areas = sel.css(Article.XPATH_ARTICLE_HEADING).xpath('*//div//text()').extract()
+        for t in text_areas:
+            heading += t
+        heading = self._filter_unnecessary_linebreaks(heading)
+        article.set_heading(self._filter_text_from_markup(heading))
 
         ressort = response.xpath(Article.XPATH_RESSORT).extract_first()
         if ressort is not None:
@@ -66,16 +72,13 @@ class ArticelCrawler(scrapy.Spider):
         else:
             self._parse_html_head_and_set_ressort(response, article)
 
-        sel = Selector(response)
 
-        paragraphs = sel.css('div[class="article-body article-body--article"]').xpath('*//p//text()').extract()
+        paragraphs = sel.css('div[itemprop="articleBody"]').xpath('*//p//text()').extract()
 
         body = ""
         for p in paragraphs:
             body += p
-
-        body.rstrip()
-        body = body.replace('\n', '').replace('\r', '')
+        body = self._filter_unnecessary_linebreaks(body)
 
         article.set_body(body)
 
@@ -84,6 +87,10 @@ class ArticelCrawler(scrapy.Spider):
     # removes markup-tags from the given text
     def _filter_text_from_markup(self, markup):
         return remove_tags(remove_tags_with_content(markup, ('script',)))
+
+    def _filter_unnecessary_linebreaks(self,text):
+        text = text.rstrip()
+        return text.replace('\n', '').replace('\r', '')
 
     # parses the html-header in order to find ressorts in the scripts for the given article
     def _parse_html_head_and_set_ressort(self, response, article):
